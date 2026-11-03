@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#1b1340">
+<title>E&R SpeakUp · Aprende inglés</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@500;800&family=DM+Sans:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{--ink:#1b1340;--ink2:#2b2068;--lime:#c8f560;--pink:#ff5c8a;--sky:#5cc8ff;--paper:#f6f3ff;--ok:#2fcf7f;--bad:#ff4d5e;
+--display:'Bricolage Grotesque',system-ui,sans-serif;--body:'DM Sans',system-ui,sans-serif}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent;margin:0}
+html,body{height:100%}
+body{font-family:var(--body);background:var(--ink);color:var(--paper);display:flex;flex-direction:column;
+padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom);
+background-image:radial-gradient(circle at 85% -10%,#4a2fb8 0,transparent 45%),radial-gradient(circle at -10% 70%,#7a1f5c55 0,transparent 40%)}
+header{padding:18px 22px 6px;display:flex;justify-content:space-between;align-items:center}
+h1{font-family:var(--display);font-weight:800;font-size:26px;letter-spacing:-.5px}
+.pill{background:var(--ink2);border-radius:99px;padding:6px 14px;font-size:14px;font-weight:600;color:var(--lime)}
+.bar{height:6px;margin:10px 22px 0;background:var(--ink2);border-radius:9px;overflow:hidden}
+.bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--sky),var(--lime));transition:width .4s}
+main{flex:1;display:flex;flex-direction:column;padding:18px 22px;min-height:0}
+.view{display:none;flex:1;flex-direction:column;min-height:0}.view.on{display:flex}
+/* tarjeta */
+.scene{flex:1;perspective:1200px;max-height:460px;min-height:300px;cursor:pointer}
+.card{position:relative;width:100%;height:100%;transform-style:preserve-3d;transition:transform .55s cubic-bezier(.3,1.3,.5,1)}
+.card.flip{transform:rotateY(180deg)}
+.face{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;border-radius:28px;padding:26px;
+display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:14px}
+.front{background:var(--lime);color:var(--ink)}
+.back{background:var(--paper);color:var(--ink);transform:rotateY(180deg);border:3px solid var(--pink)}
+.word{font-family:var(--display);font-weight:800;font-size:clamp(44px,15vw,72px);letter-spacing:-2px;line-height:1;word-break:break-word}
+.hint{font-size:14px;font-weight:600;opacity:.6}
+.es{font-family:var(--display);font-weight:800;font-size:clamp(28px,9vw,40px);color:var(--pink);line-height:1.1}
+.ipa{font-size:20px;font-weight:600;color:#5b4fa8}
+.ex{font-size:18px;line-height:1.4;background:#ebe5ff;border-radius:16px;padding:14px 16px}
+.spk{border:0;background:var(--ink);color:var(--lime);width:48px;height:48px;border-radius:50%;font-size:20px;cursor:pointer}
+.back .spk{background:var(--pink);color:#fff}
+.row{display:flex;gap:12px;margin-top:16px}
+.btn{flex:1;border:0;border-radius:18px;padding:16px;font:600 16px var(--body);cursor:pointer;color:var(--ink);transition:transform .1s}
+.btn:active{transform:scale(.96)}
+.btn.again{background:var(--ink2);color:var(--paper)}.btn.know{background:var(--sky)}
+.btn.next{background:var(--lime);margin-top:16px;display:none;flex:none}
+/* ejercicio */
+.q{text-align:center;padding:30px 10px 20px}
+.q .word{color:var(--lime);font-size:clamp(44px,14vw,66px)}
+.q .ask{opacity:.7;margin-bottom:10px;font-size:15px}
+.opts{display:flex;flex-direction:column;gap:12px}
+.opt{border:2px solid transparent;background:var(--ink2);color:var(--paper);border-radius:20px;padding:18px;font:600 19px var(--body);cursor:pointer;text-align:left;transition:.2s}
+.opt:active{transform:scale(.98)}
+.opt.ok{background:var(--ok);color:#06331c;border-color:#fff}
+.opt.bad{background:var(--bad);color:#fff;animation:shake .35s}
+.opt[disabled]{cursor:default}
+.score{display:flex;gap:10px;justify-content:center;margin-top:auto;padding-top:16px;font-size:14px;font-weight:600}
+.score span{background:var(--ink2);padding:6px 12px;border-radius:99px}
+@keyframes shake{25%{transform:translateX(-7px)}75%{transform:translateX(7px)}}
+.done{text-align:center;margin:auto;display:flex;flex-direction:column;gap:14px;align-items:center}
+.done .word{font-size:42px}
+nav{display:flex;gap:8px;padding:10px 16px 14px;background:#120d2e}
+nav button{flex:1;border:0;background:none;color:var(--paper);opacity:.55;font:600 15px var(--body);padding:12px;border-radius:16px;cursor:pointer}
+nav button.on{opacity:1;background:var(--ink2);color:var(--lime)}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+<header><h1>E&R SpeakUp</h1><div class="pill" id="count">0 / 0</div></header>
+<div class="bar"><i id="prog"></i></div>
+
+<main>
+  <section class="view on" id="v-cards"></section>
+  <section class="view" id="v-quiz"></section>
+</main>
+
+<nav>
+  <button class="on" data-tab="cards">🃏 Tarjetas</button>
+  <button data-tab="quiz">🎯 Ejercicio</button>
+</nav>
+
+<script src="words.js"></script>
+<script>
+const W = WORDS.map(([w,es,ipa,ex])=>({w,es,ipa,ex}));
+const $ = s=>document.querySelector(s);
+const shuffle = a=>{a=[...a];for(let i=a.length-1;i>0;i--){const j=Math.random()*(i+1)|0;[a[i],a[j]]=[a[j],a[i]]}return a};
+let known = new Set();
+try{known = new Set(JSON.parse(localStorage.getItem('known')||'[]'))}catch(e){}
+const save=()=>{try{localStorage.setItem('known',JSON.stringify([...known]))}catch(e){}};
+function speak(t){try{speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(t);u.lang='en-US';u.rate=.85;speechSynthesis.speak(u)}catch(e){}}
+function updateTop(){$('#count').textContent=`${known.size} / ${W.length}`;$('#prog').style.width=(known.size/W.length*100)+'%'}
+
+/* ---------- TARJETAS ---------- */
+let queue=[];
+function resetCards(){queue=shuffle(W.filter(x=>!known.has(x.w)));renderCard()}
+function renderCard(){
+  const v=$('#v-cards');updateTop();
+  if(!queue.length){
+    v.innerHTML=`<div class="done"><div style="font-size:64px">🎉</div><div class="word">¡Las dominaste!</div><p>Ya marcaste todas las palabras como aprendidas.</p><button class="btn know" id="rst">Empezar de nuevo</button></div>`;
+    $('#rst').onclick=()=>{known.clear();save();resetCards()};return}
+  const c=queue[0];
+  v.innerHTML=`
+  <div class="scene" id="scene"><div class="card" id="card">
+    <div class="face front"><div class="word">${c.w}</div><button class="spk" id="s1" aria-label="Escuchar">🔊</button><div class="hint">Toca para ver la respuesta</div></div>
+    <div class="face back"><div class="es">${c.es}</div><div class="ipa">${c.ipa}</div><button class="spk" id="s2" aria-label="Escuchar">🔊</button><div class="ex">“${c.ex}”</div></div>
+  </div></div>
+  <div class="row"><button class="btn again" id="again">Repasar</button><button class="btn know" id="know">Ya la sé ✓</button></div>`;
+  $('#scene').onclick=()=>$('#card').classList.toggle('flip');
+  for(const id of ['s1','s2'])$('#'+id).onclick=e=>{e.stopPropagation();speak(c.w)};
+  $('#again').onclick=()=>{queue.push(queue.shift());renderCard()};
+  $('#know').onclick=()=>{known.add(c.w);save();queue.shift();renderCard()};
+}
+
+/* ---------- EJERCICIO ---------- */
+let ok=0,bad=0,streak=0,cur=null;
+function newQ(){
+  const v=$('#v-quiz');
+  const pool=W.filter(x=>!known.has(x.w));
+  cur=(pool.length?pool:W)[Math.random()*(pool.length||W.length)|0];
+  const wrong=shuffle(W.filter(x=>x.es!==cur.es)).slice(0,2);
+  const opts=shuffle([cur,...wrong]);
+  v.innerHTML=`
+  <div class="q"><div class="ask">¿Qué significa?</div><div class="word">${cur.w}</div></div>
+  <div class="opts">${opts.map(o=>`<button class="opt" data-es="${o.es}">${o.es}</button>`).join('')}</div>
+  <button class="btn next" id="nx">Siguiente</button>
+  <div class="score"><span>✅ ${ok}</span><span>❌ ${bad}</span><span>🔥 ${streak}</span></div>`;
+  v.querySelectorAll('.opt').forEach(b=>b.onclick=()=>answer(b));
+  $('#nx').onclick=newQ;
+}
+function answer(b){
+  const right=b.dataset.es===cur.es;
+  document.querySelectorAll('.opt').forEach(o=>{o.disabled=true;if(o.dataset.es===cur.es)o.classList.add('ok')});
+  if(right){ok++;streak++}else{b.classList.add('bad');bad++;streak=0}
+  speak(cur.w);
+  $('.score').innerHTML=`<span>✅ ${ok}</span><span>❌ ${bad}</span><span>🔥 ${streak}</span>`;
+  $('#nx').style.display='block';
+  if(right)setTimeout(()=>{if($('#nx')&&document.querySelector('#v-quiz.on'))newQ()},1100);
+}
+
+/* ---------- NAVEGACIÓN ---------- */
+document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>{
+  document.querySelectorAll('nav button,.view').forEach(e=>e.classList.remove('on'));
+  b.classList.add('on');$('#v-'+b.dataset.tab).classList.add('on');
+  if(b.dataset.tab==='quiz')newQ();else renderCard();
+});
+resetCards();
+</script>
+</body>
+</html>
